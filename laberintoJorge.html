@@ -3,14 +3,29 @@
 <head>
     <meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Practica FPS Jorge Francisco Angulo Flores</title>
+	<title>Proyecto Laberinto Jorge Francisco Angulo Flores</title>
+
+    <style>
+        #canvas-container {
+          
+            margin: 0 auto;
+            background-color: gray;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+    
 </head>
 
-<body style="background-color: gray;">
-    <center>
-        <canvas id="canvas01" width="500" height="500"></canvas>
-    </center>
-
+<body>
+    <div id="canvas-container">
+        <canvas id="canvas01" width="1280" height="720"></canvas>
+    </div>
 </body>
 
 <script>
@@ -22,13 +37,30 @@
     ctx.fillStyle = "red";
     
     var dir=0;
-    var speed=10;
+    var speed=5;
     let pause = false;
     let score=0;
+    
+    let audio = new Audio();
+    audio.src="opPoke.mp3";
+    audio.loop = true; 
+    /*audio.addEventListener("loadeddata", function() {
+        console.log("Canción cargada.");
+    });*/
+
     let image= new Image();
     image.src="pikachu5.png";
-    let audio = new Audio();
-    audio.src="op.mp3";
+
+    let meta= new Image();
+    meta.src="meta.png";
+
+    let hierba= new Image();
+    hierba.src="hierba.png";
+
+    let arbol= new Image();
+    arbol.src="arbol.png";
+
+
 
     class Rectangulo{
 
@@ -62,36 +94,38 @@
     }
 
     const player = new Rectangulo(255,255,50,50,"black");
-    const target = new Rectangulo(350,350,40,40,"black");
+    const target = new Rectangulo(1200,650,40,40,"black");
 
     const walls = [];
-    walls.push(new Rectangulo(100,70,280,30,"gray"));
-    walls.push(new Rectangulo(100,420,280,30,"gray"));
-    walls.push(new Rectangulo(50,200,280,30,"red"));
-    walls.push(new Rectangulo(50,200,30,280,"red"));
+    walls.push(new Rectangulo(0,0,canvas.width,20,"gray"));
+    walls.push(new Rectangulo(0,700,canvas.width,20,"gray"));
+    walls.push(new Rectangulo(0,0,20,canvas.height,"gray"));
+    walls.push(new Rectangulo(1260,0,20,canvas.height,"gray"));
 
 
         document.addEventListener("keydown",(event)=> {
-        
+           
+
             switch (event.keyCode) {
             case 87:
                 if(!pause)dir = event.keyCode;
-                
+               
                 
                 break;
 
             case 83:
             if(!pause)dir = event.keyCode;
-               
+                
                 break;
 
             case 68:
             if(!pause)dir = event.keyCode;
-                
+            
                 break;
 
             case 65:
             if(!pause)dir = event.keyCode;
+                
                 break;
 
             case 32:
@@ -101,52 +135,55 @@
             default:
                 break;
             }
+
+            if (event.keyCode === 87 || event.keyCode === 83 || event.keyCode === 68 || event.keyCode === 65) {
+                audio.play();
+            }
+           
         }); 
 
 
-    function update(){
+    function update(){ //teletransportar
         if(!pause){
             switch (dir) {
             case 87:  
                
-                player.y-= speed;
-                if(player.y<-50){
-                    player.y=550}
-                break;
+                    player.y-= speed;
+                    break;
 
             case 83:
                
-                player.y+= speed;
-                if(player.y>550){
-                    player.y=0}
-                break;
+                    player.y+= speed;
+                    break;
 
             case 68:
                 
-                player.x+= speed;
-                if(player.x>550){
-                    player.x=0}
-                break;
+                    player.x+= speed;
+                    break;
 
                 case 65:
               
-                player.x-= speed;
-                if(player.x<-50){
-                    player.x=550}
-                break;
+                    player.x-= speed;
+                    break;
 
             default:
                 
-                break;
+                    break;
             }
 
-            if(player.seTocan(target)){
-                target.x= Math.random() * (400);
-                target.y= Math.random() * (400);
-                speed +=1;
+            if(player.seTocan(target)){ //AQUI FINALIZAR EL JUEGO
+
+                //audio.play();
+            };
+
+            /*if(player.seTocan(target)){ //PONER BAYAS QUE SUBEN SCORE
+                target.x= 1200;
+                target.y= 700;
+                //speed +=1;
                 score +=10;
                 audio.play();
-            };
+            };*/
+
 
 
             for(var i = walls.length -1; i>=0;i--){
@@ -190,22 +227,34 @@
 
     function repaint(){
         if(!pause){
-            ctx.fillStyle = "white";
-            ctx.fillRect ( 0, 0,1000,1000);
+            ctx.fillStyle = "green";
+            ctx.fillRect ( 0, 0,1280,720);
 
-            //player.c = random_rgba();
-            //player.paint(ctx);
+            
+        for (let x = 0; x < canvas.width; x += 30) {
+            for (let y = 0; y < canvas.height; y += 20) {
+                ctx.drawImage(hierba, x, y, 30, 20);
+            }
+        }
+
             ctx.drawImage(image, player.x, player.y,50,50)
-
-            target.paint(ctx);
+            ctx.drawImage(meta, target.x, target.y,50,50)
+           
 
             ctx.fillStyle = "BLACK";
             ctx.font ="30px Arial"
             ctx.fillText("Score: "+score,40,30);
 
-            for(var i = walls.length -1; i>=0;i--){
-                walls[i].paint(ctx);
-             };
+            for (var i = walls.length - 1; i >= 0; i--) {
+            //walls[i].paint(ctx);
+            for (var x = walls[i].x; x < walls[i].x + walls[i].w; x += 30) {
+                    for (var y = walls[i].y; y < walls[i].y + walls[i].h; y += 20) {
+                        ctx.drawImage(arbol, x, y, 30, 20);
+                    }
+                }
+        }
+       
+
         }else{
             ctx.fillStyle = "RGB(128,128,128,.05)";
             ctx.fillRect ( 0, 0,1000,1000);
