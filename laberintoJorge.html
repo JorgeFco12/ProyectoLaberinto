@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html lang ="en">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Proyecto Laberinto Jorge Francisco Angulo Flores</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyecto Laberinto Jorge Francisco Angulo Flores</title>
 
     <style>
         #canvas-container {
-          
             margin: 0 auto;
             background-color: gray;
             display: flex;
@@ -19,7 +18,7 @@
             border: 1px solid black;
         }
     </style>
-    
+
 </head>
 
 <body>
@@ -29,75 +28,69 @@
 </body>
 
 <script>
-
     var canvas = document.getElementById('canvas01');
     var ctx = canvas.getContext('2d');
 
-
     ctx.fillStyle = "red";
-    
-    var dir=0;
-    var speed=2;
-    let pause = false;
-    let score=0;
-    
-    let audio = new Audio();
-    audio.src="opPoke.mp3";
-    audio.loop = true; 
 
-    /*audio.addEventListener("loadeddata", function() {
-        console.log("Canción cargada.");
-    });*/
+    var dir = 0;
+    var speed = 2;
+    let pause = false;
+    let score = 0;
+    let isPichu2 = false; 
+
+    let audio = new Audio();
+    audio.src = "opPoke.mp3";
+    audio.loop = true;
 
     let pichu1 = new Image();
-    pichu1.src="pichu1.png";
+    pichu1.src = "pichu1.png";
 
     let pichu2 = new Image();
-    pichu2.src="pichu2.png";
+    pichu2.src = "pichu2.png";
 
     let pika1 = new Image();
-    pika1.src="pika1.png";
+    pika1.src = "pika1.png";
 
-    let meta= new Image();
-    meta.src="meta.png";
+    let raichu1 = new Image();
+    raichu1.src = "raichu1.png";
 
-    let hierba= new Image();
-    hierba.src="hierba.png";
+    let raichu2 = new Image();
+    raichu2.src = "raichu2.png";
 
-    let arbol= new Image();
-    arbol.src="arbol.png";
+    let meta = new Image();
+    meta.src = "meta.png";
 
+    let hierba = new Image();
+    hierba.src = "hierba.png";
 
+    let arbol = new Image();
+    arbol.src = "arbol.png";
 
-    class Rectangulo{
-
-        constructor(x,y,w,h,c){
-            this.x=x;
-            this.y=y;
-            this.w=w;
-            this.h=h;
-            this.c=c;
+    class Rectangulo {
+        constructor(x, y, w, h, c) {
+            this.x = x;
+            this.y = y;
+            this.w = w;
+            this.h = h;
+            this.c = c;
         }
-       
-        paint(ctx){
-           
+
+        paint(ctx) {
             ctx.fillStyle = this.c;
-            ctx.fillRect ( this.x, this.y, this.w, this.h);
-            ctx.strokeRect ( this.x, this.y, this.w, this.h);
-
+            ctx.fillRect(this.x, this.y, this.w, this.h);
+            ctx.strokeRect(this.x, this.y, this.w, this.h);
         }
 
-        seTocan(target){
-
-            if( this.x < target.x + target.w  &&  
-                this.x + this.w > target.x &&    
-                this.y < target.y + target.h &&    
-                this.y + this.h> target.y){  
-                    return true;
+        seTocan(target) {
+            if (this.x < target.x + target.w &&
+                this.x + this.w > target.x &&
+                this.y < target.y + target.h &&
+                this.y + this.h > target.y) {
+                return true;
             }
             return false;
         }
-
     }
 
     class Enemy {
@@ -107,281 +100,264 @@
             this.w = w;
             this.h = h;
             this.c = c;
+            this.enabled = true; 
+            this.canToggle = true; 
         }
+
         paint(ctx) {
-        ctx.fillStyle = this.c;
-        ctx.fillRect(this.x, this.y, this.w, this.h);
-        ctx.strokeRect(this.x, this.y, this.w, this.h);
+            if (this.enabled) {
+                ctx.fillStyle = this.c;
+                ctx.fillRect(this.x, this.y, this.w, this.h);
+                ctx.strokeRect(this.x, this.y, this.w, this.h);
+            }
         }
 
         seTocan(player) {
-        if (this.x < player.x + player.w &&
-            this.x + this.w > player.x &&
-            this.y < player.y + player.h &&
-            this.y + this.h > player.y) {
-            return true;
+            if (!this.enabled) {
+                return false; 
+            }
+
+            if (this.x < player.x + player.w &&
+                this.x + this.w > player.x &&
+                this.y < player.y + player.h &&
+                this.y + this.h > player.y) {
+                return true;
+            }
+            return false;
         }
-        return false;
+
+        toggleEnabled() {
+            if (this.canToggle) {
+                this.enabled = !this.enabled;
+                this.canToggle = false; // Deshabilitamos la capacidad de cambiar después de la primera vez
+            }
         }
     }
 
-    const player = new Rectangulo(20,20,35,30,"black");
-    const target = new Rectangulo(1200,650,40,40,"black");
-    const enemy1 = new Enemy(400, 620, 35, 35, "red");
+    const player = new Rectangulo(20, 20, 35, 30, "black");
+    const target = new Rectangulo(1200, 650, 40, 40, "black");
+    const enemy1 = new Enemy(40, 640, 35, 35, "red");
     const enemy2 = new Enemy(300, 620, 35, 35, "red");
 
     const walls = [];
    
-    walls.push(new Rectangulo(80,20,20,100,"gray")); //V  x,y,ancho.alto
-    walls.push(new Rectangulo(260,320,20,340,"gray")); //V 
-    walls.push(new Rectangulo(230,540,20,20,"gray")); //V 
-    walls.push(new Rectangulo(200,480,20,100,"gray")); //V 
-    walls.push(new Rectangulo(140,440,20,40,"gray")); //V  
-    walls.push(new Rectangulo(140,420,80,20,"gray")); //H 
-    walls.push(new Rectangulo(80,360,20,60,"gray")); //v
-    walls.push(new Rectangulo(200,320,20,100,"gray")); //v
-    walls.push(new Rectangulo(80,180,20,80,"gray")); //V  
-    walls.push(new Rectangulo(80,300,200,20,"gray")); //H 
-    walls.push(new Rectangulo(140,120,20,180,"gray")); //V 
-    walls.push(new Rectangulo(140,20,20,40,"gray")); //V
-    walls.push(new Rectangulo(20,180,60,20,"gray")); //H
-    walls.push(new Rectangulo(80,100,140,20,"gray")); //H
-    walls.push(new Rectangulo(20,360,140,20,"gray")); //H
-    walls.push(new Rectangulo(20,520,140,20,"gray")); //H
-    walls.push(new Rectangulo(140,420,80,20,"gray")); //H 
-    walls.push(new Rectangulo(60,460,80,20,"gray")); //H  
-    walls.push(new Rectangulo(80,600,20,100,"gray")); //V
-    walls.push(new Rectangulo(110,640,110,20,"gray")); //H
-    walls.push(new Rectangulo(140,580,20,60,"gray")); //H 
-    walls.push(new Rectangulo(320,60,20,500,"gray")); //V
-    walls.push(new Rectangulo(200,240,100,20,"gray")); //V 
-    walls.push(new Rectangulo(170,180,80,20,"gray")); //H 
-    walls.push(new Rectangulo(260,100,60,20,"gray")); //H 
-    walls.push(new Rectangulo(230,160,20,20,"gray")); //H 
-    walls.push(new Rectangulo(260,60,20,40,"gray")); //V
-    walls.push(new Rectangulo(420,460,20,40,"gray")); //h
-    walls.push(new Rectangulo(420,440,450,20,"gray")); //h
-    walls.push(new Rectangulo(200,60,20,20,"gray")); //v
-    walls.push(new Rectangulo(320,620,20,80,"gray")); //v
-    walls.push(new Rectangulo(800,580,20,80,"gray")); //v
-    walls.push(new Rectangulo(590,660,20,40,"gray")); //h 
-    walls.push(new Rectangulo(420,500,300,20,"gray")); //h
-    walls.push(new Rectangulo(650,640,140,20,"gray")); //h 
-    walls.push(new Rectangulo(320,560,500,20,"gray")); //h
-    walls.push(new Rectangulo(420,500,300,20,"gray")); //h
-    walls.push(new Rectangulo(650,640,140,20,"gray")); //h
-    walls.push(new Rectangulo(380,640,220,20,"gray")); //h
-    walls.push(new Rectangulo(860,440,20,260,"gray")); //v //terminar
-    
+   walls.push(new Rectangulo(80,20,20,100,"gray")); //V  x,y,ancho.alto
+   walls.push(new Rectangulo(260,320,20,340,"gray")); //V 
+   walls.push(new Rectangulo(230,540,20,20,"gray")); //V 
+   walls.push(new Rectangulo(200,480,20,100,"gray")); //V 
+   walls.push(new Rectangulo(140,440,20,40,"gray")); //V  
+   walls.push(new Rectangulo(140,420,80,20,"gray")); //H 
+   walls.push(new Rectangulo(80,360,20,60,"gray")); //v
+   walls.push(new Rectangulo(200,320,20,100,"gray")); //v
+   walls.push(new Rectangulo(80,180,20,80,"gray")); //V  
+   walls.push(new Rectangulo(80,300,200,20,"gray")); //H 
+   walls.push(new Rectangulo(140,120,20,180,"gray")); //V 
+   walls.push(new Rectangulo(140,20,20,40,"gray")); //V
+   walls.push(new Rectangulo(20,180,60,20,"gray")); //H
+   walls.push(new Rectangulo(80,100,140,20,"gray")); //H
+   walls.push(new Rectangulo(20,360,140,20,"gray")); //H
+   walls.push(new Rectangulo(20,520,140,20,"gray")); //H
+   walls.push(new Rectangulo(140,420,80,20,"gray")); //H 
+   walls.push(new Rectangulo(60,460,80,20,"gray")); //H  
+   walls.push(new Rectangulo(80,600,20,100,"gray")); //V
+   walls.push(new Rectangulo(110,640,110,20,"gray")); //H
+   walls.push(new Rectangulo(140,580,20,60,"gray")); //H 
+   walls.push(new Rectangulo(320,60,20,500,"gray")); //V
+   walls.push(new Rectangulo(200,240,100,20,"gray")); //V 
+   walls.push(new Rectangulo(170,180,80,20,"gray")); //H 
+   walls.push(new Rectangulo(260,100,60,20,"gray")); //H 
+   walls.push(new Rectangulo(230,160,20,20,"gray")); //H 
+   walls.push(new Rectangulo(260,60,20,40,"gray")); //V
+   walls.push(new Rectangulo(420,460,20,40,"gray")); //h
+   walls.push(new Rectangulo(420,440,450,20,"gray")); //h
+   walls.push(new Rectangulo(200,60,20,20,"gray")); //v
+   walls.push(new Rectangulo(320,620,20,80,"gray")); //v
+   walls.push(new Rectangulo(800,580,20,80,"gray")); //v
+   walls.push(new Rectangulo(590,660,20,40,"gray")); //h 
+   walls.push(new Rectangulo(320,560,500,20,"gray")); //h
+   walls.push(new Rectangulo(420,500,300,20,"gray")); //h
+   walls.push(new Rectangulo(650,640,140,20,"gray")); //h 
+   walls.push(new Rectangulo(320,560,500,20,"gray")); //h
+   walls.push(new Rectangulo(420,500,300,20,"gray")); //h
+   walls.push(new Rectangulo(650,640,140,20,"gray")); //h
+   walls.push(new Rectangulo(380,640,220,20,"gray")); //h
+   walls.push(new Rectangulo(860,440,20,260,"gray")); //v 
    
+  
 
-    walls.push(new Rectangulo(0,0,20,canvas.height,"gray")); //Muro Izquirda
-    walls.push(new Rectangulo(0,700,canvas.width,20,"gray")); //Muro Inferior
-    walls.push(new Rectangulo(1550,0,20,canvas.height,"gray")); //Muro Derechas
-    walls.push(new Rectangulo(0,0,canvas.width,20,"gray")); //Muro superior
+   walls.push(new Rectangulo(0,0,20,canvas.height,"gray")); //Muro Izquirda
+   walls.push(new Rectangulo(0,700,canvas.width,20,"gray")); //Muro Inferior
+   walls.push(new Rectangulo(1550,0,20,canvas.height,"gray")); //Muro Derechas
+   walls.push(new Rectangulo(0,0,canvas.width,20,"gray")); //Muro superior
 
-
-        document.addEventListener("keydown",(event)=> {
-           
-
-            switch (event.keyCode) {
+    document.addEventListener("keydown", (event) => {
+        switch (event.keyCode) {
             case 87:
-                if(!pause)dir = event.keyCode;
-               
-                
+                if (!pause) dir = event.keyCode;
                 break;
-
             case 83:
-            if(!pause)dir = event.keyCode;
-                
+                if (!pause) dir = event.keyCode;
                 break;
-
             case 68:
-            if(!pause)dir = event.keyCode;
-            
+                if (!pause) dir = event.keyCode;
                 break;
-
             case 65:
-            if(!pause)dir = event.keyCode;
-                
+                if (!pause) dir = event.keyCode;
                 break;
-
             case 32:
                 pause = !pause;
-                break;dsad
-
+                break;
+            case 70: // Tecla "F" Ataques
+                if (!pause) {
+                    enemy1.toggleEnabled();
+                   
+                    isPichu2 = true;
+                    setTimeout(() => {
+                       
+                        isPichu2 = false;
+                    }, 500); 
+                }
+                break;
             default:
                 break;
-            }
+        }
 
-            if (event.keyCode === 87 || event.keyCode === 83 || event.keyCode === 68 || event.keyCode === 65) {
-                audio.play();
-            }
-           
-        }); 
+        if (event.keyCode === 87 || event.keyCode === 83 || event.keyCode === 68 || event.keyCode === 65) {
+            audio.play();
+        }
+    });
 
-
-    function update(){ //teletransportar
-        if(!pause){
+    function update() {
+        if (!pause) {
             switch (dir) {
-            case 87:  
-               
-                    player.y-= speed;
+                case 87:
+                    player.y -= speed;
                     break;
-
-            case 83:
-               
-                    player.y+= speed;
+                case 83:
+                    player.y += speed;
                     break;
-
-            case 68:
-                
-                    player.x+= speed;
+                case 68:
+                    player.x += speed;
                     break;
-
                 case 65:
-              
-                    player.x-= speed;
+                    player.x -= speed;
                     break;
-
-            default:
-                
+                default:
                     break;
             }
 
             let collidedWithEnemy = false;
 
-            if(player.seTocan(target)){ //AQUI FINALIZAR EL JUEGO
-
+            if (player.seTocan(target)) {
                 
-            };
+            }
 
-            if (player.seTocan(enemy1)) {
-                //collidedWithEnemy = true;
-            
+            if (player.seTocan(enemy1) && enemy1.enabled) {
+                collidedWithEnemy = true;
             }
 
             if (player.seTocan(enemy2)) {
                 //collidedWithEnemy = true;
-            
             }
-
-            /*if(player.seTocan(target)){ //PONER BAYAS QUE SUBEN SCORE
-                target.x= 1200;
-                target.y= 700;
-                //speed +=1;
-                score +=10;
-                audio.play();
-            };*/
-
 
             if (collidedWithEnemy) {
-            // Revertir el movimiento del jugador
-            switch (dir) {
-                case 87:
-                    player.y += speed;
-                    break;
-                case 83:
-                    player.y -= speed;
-                    break;
-                case 68:
-                    player.x -= speed;
-                    break;
-                case 65:
-                    player.x += speed;
-                    break;
-                default:
-                    break;
-            }
-            dir = 0;
-        }
-            for(var i = walls.length -1; i>=0;i--){
-
-                if(player.seTocan(walls[i])){  
-              
                 switch (dir) {
-                    case 87:  
+                    case 87:
                         player.y += speed;
                         break;
-
                     case 83:
-                        player.y -= speed;                       
+                        player.y -= speed;
                         break;
-
                     case 68:
-                        player.x -= speed;                      
+                        player.x -= speed;
                         break;
-
                     case 65:
-                        player.x += speed;               
+                        player.x += speed;
                         break;
-
                     default:
                         break;
                 }
-                dir=0;
+                dir = 0;
             }
-        };
-           
-    }
-        repaint();
-        window.requestAnimationFrame(update);
-        
-        
-    }
-
-    function repaint(){
-        if(!pause){
-            ctx.fillStyle = "green";
-            ctx.fillRect ( 0, 0,1580,720);
-
-            
-        for (let x = 0; x < canvas.width; x += 30) {
-            for (let y = 0; y < canvas.height; y += 20) {
-                ctx.drawImage(hierba, x, y, 30, 20);
+            for (var i = walls.length - 1; i >= 0; i--) {
+                if (player.seTocan(walls[i])) {
+                    switch (dir) {
+                        case 87:
+                            player.y += speed;
+                            break;
+                        case 83:
+                            player.y -= speed;
+                            break;
+                        case 68:
+                            player.x -= speed;
+                            break;
+                        case 65:
+                            player.x += speed;
+                            break;
+                        default:
+                            break;
+                    }
+                    dir = 0;
+                }
             }
         }
+        repaint();
+        window.requestAnimationFrame(update);
+    }
 
-            ctx.drawImage(pichu1, player.x, player.y,50,50)
-            ctx.drawImage(meta, target.x, target.y,50,50)
-            ctx.drawImage(pichu2, enemy1.x, enemy1.y,50,50)
-            ctx.drawImage(pika1, enemy2.x, enemy2.y,50,50)
-           
+    function repaint() {
+        if (!pause) {
+            ctx.fillStyle = "green";
+            ctx.fillRect(0, 0, 1580, 720);
+
+            for (let x = 0; x < canvas.width; x += 30) {
+                for (let y = 0; y < canvas.height; y += 20) {
+                    ctx.drawImage(hierba, x, y, 30, 20);
+                }
+            }
+
+            if (isPichu2) {
+                ctx.drawImage(pichu2, player.x, player.y, 50, 50);
+            } else {
+                ctx.drawImage(pichu1, player.x, player.y, 50, 50);
+            }
+
+            ctx.drawImage(meta, target.x, target.y, 50, 50);
+
+            if (enemy1.enabled) {
+                ctx.drawImage(raichu1, enemy1.x, enemy1.y, 50, 50);
+            }
+
+            ctx.drawImage(raichu2, enemy2.x, enemy2.y, 50, 50);
 
             ctx.fillStyle = "BLACK";
-            ctx.font ="30px Arial"
-            ctx.fillText("Score: "+score,40,30);
+            ctx.font = "30px Arial"
+            ctx.fillText("Score: " + score, 40, 30);
 
             for (var i = walls.length - 1; i >= 0; i--) {
-            for (var x = walls[i].x; x < walls[i].x + walls[i].w; x += 30) {
+                for (var x = walls[i].x; x < walls[i].x + walls[i].w; x += 30) {
                     for (var y = walls[i].y; y < walls[i].y + walls[i].h; y += 20) {
                         ctx.drawImage(arbol, x, y, 30, 30);
                     }
                 }
-        }
-       
-
-        }else{
-            ctx.fillStyle = "RGB(128,128,128,.05)";
-            ctx.fillRect ( 0, 0,1000,1000);
+            }
+        } else {
+            ctx.fillStyle = "rgba(128, 128, 128, 0.05)";
+            ctx.fillRect(0, 0, 1000, 1000);
             ctx.fillStyle = "BLACK";
-            ctx.font ="30px Arial"
-            ctx.fillText("P A U S E",190,230);
+            ctx.font = "30px Arial"
+            ctx.fillText("P A U S E", 190, 230);
         }
-       
-       
     }
 
-    
     function random_rgba() {
         var o = Math.round, r = Math.random, s = 255;
-        return 'rgba(' + o(r()*s) + ',' + o(r()*s) + ',' + o(r()*s) + ',' + r().toFixed(1) + ')';}
+        return 'rgba(' + o(r() * s) + ',' + o(r() * s) + ',' + o(r() * s) + ',' + r().toFixed(1) + ')';
+    }
 
     function getRandomInt(max) {
         return Math.floor(Math.random() * max);
     }
-
-
 
     window.requestAnimationFrame = (function () {
         return window.requestAnimationFrame ||
@@ -393,7 +369,5 @@
     }());
 
     window.requestAnimationFrame(update);
-
 </script>
-
 </html>
