@@ -34,10 +34,11 @@
     ctx.fillStyle = "red";
 
     var dir = 0;
-    var speed = 2;
+    var speed = 5;
     let pause = false;
     let score = 0;
-    let isPichu2 = false; 
+    let isPichu2 = false;
+    let isFPressed = false;
 
     let audio = new Audio();
     audio.src = "opPoke.mp3";
@@ -51,6 +52,9 @@
 
     let pika1 = new Image();
     pika1.src = "pika1.png";
+
+    let pika2 = new Image();
+    pika2.src = "pika2.png";
 
     let raichu1 = new Image();
     raichu1.src = "raichu1.png";
@@ -94,27 +98,25 @@
     }
 
     class Enemy {
-        constructor(x, y, w, h, c) {
+        constructor(x, y, w, h, c,image) {
             this.x = x;
             this.y = y;
             this.w = w;
             this.h = h;
             this.c = c;
-            this.enabled = true; 
-            this.canToggle = true; 
+            this.image = image;
+            this.enabled = true;
         }
 
         paint(ctx) {
             if (this.enabled) {
-                ctx.fillStyle = this.c;
-                ctx.fillRect(this.x, this.y, this.w, this.h);
-                ctx.strokeRect(this.x, this.y, this.w, this.h);
+                ctx.drawImage(this.image, this.x, this.y, this.w, this.h);
             }
-        }
+        }   
 
         seTocan(player) {
             if (!this.enabled) {
-                return false; 
+                return false;
             }
 
             if (this.x < player.x + player.w &&
@@ -126,18 +128,18 @@
             return false;
         }
 
-        toggleEnabled() {
-            if (this.canToggle) {
-                this.enabled = !this.enabled;
-                this.canToggle = false; // Deshabilitamos la capacidad de cambiar después de la primera vez
-            }
+        disable() {
+            this.enabled = false;
         }
     }
 
-    const player = new Rectangulo(20, 20, 35, 30, "black");
+    const player = new Rectangulo(400, 20, 35, 30, "black");
     const target = new Rectangulo(1200, 650, 40, 40, "black");
-    const enemy1 = new Enemy(40, 640, 35, 35, "red");
-    const enemy2 = new Enemy(300, 620, 35, 35, "red");
+
+    const enemies = [
+        new Enemy(40, 160, 35, 35, "blue", pika1),
+        new Enemy(300, 160, 35, 35, "blue", pika2),
+    ];
 
     const walls = [];
    
@@ -181,9 +183,39 @@
    walls.push(new Rectangulo(420,500,300,20,"gray")); //h
    walls.push(new Rectangulo(650,640,140,20,"gray")); //h
    walls.push(new Rectangulo(380,640,220,20,"gray")); //h
+   walls.push(new Rectangulo(1400,600,20,100,"gray")); //v meta
+   walls.push(new Rectangulo(1525,500,20,20,"gray")); //h 
+   walls.push(new Rectangulo(380,180,220,20,"gray")); //h 
+   walls.push(new Rectangulo(600,20,20,160,"gray")); //v 
+   walls.push(new Rectangulo(1420,600,20,20,"gray")); //v 
    walls.push(new Rectangulo(860,440,20,260,"gray")); //v 
+   walls.push(new Rectangulo(380,60,120,20,"gray")); //H
+   walls.push(new Rectangulo(380,120,180,20,"gray")); //H
+   walls.push(new Rectangulo(380,20,20,40,"gray")); //v
+   walls.push(new Rectangulo(540,20,20,100,"gray")); //v
+   walls.push(new Rectangulo(380,200,20,200,"gray")); //v 
+   walls.push(new Rectangulo(660,60,20,140,"gray")); //v
+   walls.push(new Rectangulo(660,240,20,160,"gray")); //v
+   walls.push(new Rectangulo(580,260,20,40,"gray")); //v
+   walls.push(new Rectangulo(460,240,200,20,"gray")); //h
+   walls.push(new Rectangulo(460,310,140,20,"gray")); //h
+   walls.push(new Rectangulo(460,380,200,20,"gray")); //h
    
   
+   
+
+  
+   walls.push(new Rectangulo(1500,600,60,20,"gray")); //h meta
+   walls.push(new Rectangulo(1440,600,20,20,"gray")); //h meta
+   
+   walls.push(new Rectangulo(1500,500,20,100,"gray")); //v meta
+   walls.push(new Rectangulo(1440,600,20,20,"gray")); //h meta
+   walls.push(new Rectangulo(1440,500,20,100,"gray")); //v 
+
+
+   
+   
+   //walls.push(new Rectangulo(540,20,20,100,"gray")); //
 
    walls.push(new Rectangulo(0,0,20,canvas.height,"gray")); //Muro Izquirda
    walls.push(new Rectangulo(0,700,canvas.width,20,"gray")); //Muro Inferior
@@ -207,17 +239,19 @@
             case 32:
                 pause = !pause;
                 break;
-            case 70: // Tecla "F" Ataques
-                if (!pause) {
-                    enemy1.toggleEnabled();
-                   
-                    isPichu2 = true;
-                    setTimeout(() => {
-                       
-                        isPichu2 = false;
-                    }, 500); 
+                case 70:
+            if (!pause && !isFPressed) {
+                isFPressed = true;
+                for (const enemy of enemies) {
+                    if (enemy.enabled && player.seTocan(enemy)) {
+                        enemy.disable();
+                    }
                 }
-                break;
+                isPichu2 = true;
+                setTimeout(() => {
+                    isPichu2 = false;
+                }, 300); 
+            }
             default:
                 break;
         }
@@ -227,40 +261,68 @@
         }
     });
 
+    document.addEventListener("keyup", (event) => {
+        switch (event.keyCode) {
+            case 70:
+                isFPressed = false;
+                break;
+            default:
+                break;
+        }
+    });
+
     function update() {
-        if (!pause) {
-            switch (dir) {
-                case 87:
-                    player.y -= speed;
-                    break;
-                case 83:
-                    player.y += speed;
-                    break;
-                case 68:
-                    player.x += speed;
-                    break;
-                case 65:
-                    player.x -= speed;
-                    break;
-                default:
-                    break;
+    if (!pause) {
+        let playerCanMove = true;
+        
+        switch (dir) {
+            case 87:
+                player.y -= speed;
+                break;
+            case 83:
+                player.y += speed;
+                break;
+            case 68:
+                player.x += speed;
+                break;
+            case 65:
+                player.x -= speed;
+                break;
+            default:
+                break;
+        }
+
+        for (const enemy of enemies) {
+            if (enemy.enabled) {
+                if (player.seTocan(enemy)) {
+                    if (isFPressed) {
+                        enemy.disable();
+                    } else {
+                        playerCanMove = false;
+                        switch (dir) {
+                            case 87:
+                                player.y += speed;
+                                break;
+                            case 83:
+                                player.y -= speed;
+                                break;
+                            case 68:
+                                player.x -= speed;
+                                break;
+                            case 65:
+                                player.x += speed;
+                                break;
+                            default:
+                                break;
+                        }
+                        dir = 0;
+                        break; 
+                    }
+                }
             }
-
-            let collidedWithEnemy = false;
-
-            if (player.seTocan(target)) {
-                
-            }
-
-            if (player.seTocan(enemy1) && enemy1.enabled) {
-                collidedWithEnemy = true;
-            }
-
-            if (player.seTocan(enemy2)) {
-                //collidedWithEnemy = true;
-            }
-
-            if (collidedWithEnemy) {
+        }
+        for (var i = walls.length - 1; i >= 0; i--) {
+            if (player.seTocan(walls[i])) {
                 switch (dir) {
                     case 87:
                         player.y += speed;
@@ -278,9 +340,14 @@
                         break;
                 }
                 dir = 0;
+                break; 
             }
-            for (var i = walls.length - 1; i >= 0; i--) {
-                if (player.seTocan(walls[i])) {
+        }
+
+        if (playerCanMove) {
+            for (const enemy of enemies) {
+                if (enemy.enabled && player.seTocan(enemy)) {
+                    playerCanMove = false;
                     switch (dir) {
                         case 87:
                             player.y += speed;
@@ -298,12 +365,14 @@
                             break;
                     }
                     dir = 0;
+                    break; 
                 }
             }
         }
-        repaint();
-        window.requestAnimationFrame(update);
     }
+    repaint();
+    window.requestAnimationFrame(update);
+}
 
     function repaint() {
         if (!pause) {
@@ -324,11 +393,11 @@
 
             ctx.drawImage(meta, target.x, target.y, 50, 50);
 
-            if (enemy1.enabled) {
-                ctx.drawImage(raichu1, enemy1.x, enemy1.y, 50, 50);
+            for (const enemy of enemies) {
+                if (enemy.enabled) {
+                    ctx.drawImage(enemy.image, enemy.x, enemy.y, enemy.w, enemy.h);
+                }
             }
-
-            ctx.drawImage(raichu2, enemy2.x, enemy2.y, 50, 50);
 
             ctx.fillStyle = "BLACK";
             ctx.font = "30px Arial"
