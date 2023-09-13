@@ -34,7 +34,7 @@
     ctx.fillStyle = "red";
 
     var dir = 0;
-    var speed = 5;
+    var speed = 2;
     let pause = false;
     let score = 0;
     let isPichu2 = false;
@@ -133,7 +133,7 @@
         }
     }
 
-    const player = new Rectangulo(400, 20, 35, 30, "black");
+    const player = new Rectangulo(740, 200, 35, 30, "black");
     const target = new Rectangulo(1200, 650, 40, 40, "black");
 
     const enemies = [
@@ -193,6 +193,7 @@
    walls.push(new Rectangulo(380,120,180,20,"gray")); //H
    walls.push(new Rectangulo(380,20,20,40,"gray")); //v
    walls.push(new Rectangulo(540,20,20,100,"gray")); //v
+   walls.push(new Rectangulo(720,20,20,50,"gray")); //v
    walls.push(new Rectangulo(380,200,20,200,"gray")); //v 
    walls.push(new Rectangulo(660,60,20,140,"gray")); //v
    walls.push(new Rectangulo(660,240,20,160,"gray")); //v
@@ -200,14 +201,37 @@
    walls.push(new Rectangulo(460,240,200,20,"gray")); //h
    walls.push(new Rectangulo(460,310,140,20,"gray")); //h
    walls.push(new Rectangulo(460,380,200,20,"gray")); //h
-   
-  
+   walls.push(new Rectangulo(920,400,20,80,"gray")); //v
+   walls.push(new Rectangulo(720,120,20,280,"gray")); //v
+   walls.push(new Rectangulo(920,600,20,60,"gray")); //v-
+   walls.push(new Rectangulo(740,380,200,20,"gray")); //h
+   walls.push(new Rectangulo(920,520,80,20,"gray")); //h
+   walls.push(new Rectangulo(920,580,80,20,"gray")); //h
+   walls.push(new Rectangulo(940,640,180,20,"gray")); //h
+   walls.push(new Rectangulo(1320,640,70,20,"gray")); //h
+   walls.push(new Rectangulo(980,320,20,200,"gray")); //v
+   walls.push(new Rectangulo(780,320,200,20,"gray")); //h
+   walls.push(new Rectangulo(780,60,200,20,"gray")); //h 
+   walls.push(new Rectangulo(960,140,20,140,"gray")); //v 
+   walls.push(new Rectangulo(780,120,20,160,"gray")); //v 
+   walls.push(new Rectangulo(780,120,200,20,"gray")); //h 
+   walls.push(new Rectangulo(1040,60,20,220,"gray")); //v
+   walls.push(new Rectangulo(960,20,20,60,"gray")); //h 
+   walls.push(new Rectangulo(850,260,100,20,"gray")); //h 
+   walls.push(new Rectangulo(850,180,20,100,"gray")); //v 
+   walls.push(new Rectangulo(1300,440,140,20,"gray")); //h 
+   walls.push(new Rectangulo(1300,500,140,20,"gray")); //h 
+   walls.push(new Rectangulo(1500,440,60,20,"gray")); //h 
+   walls.push(new Rectangulo(1040,60,200,20,"gray")); //h 
+   walls.push(new Rectangulo(1280,60,20,340,"gray")); //v
+   walls.push(new Rectangulo(1040,380,220,20,"gray")); //h
+
+
+
    
 
-  
    walls.push(new Rectangulo(1500,600,60,20,"gray")); //h meta
    walls.push(new Rectangulo(1440,600,20,20,"gray")); //h meta
-   
    walls.push(new Rectangulo(1500,500,20,100,"gray")); //v meta
    walls.push(new Rectangulo(1440,600,20,20,"gray")); //h meta
    walls.push(new Rectangulo(1440,500,20,100,"gray")); //v 
@@ -401,7 +425,7 @@
 
             ctx.fillStyle = "BLACK";
             ctx.font = "30px Arial"
-            ctx.fillText("Score: " + score, 40, 30);
+            ctx.fillText("Tiempo: " + score, 1400, 60);
 
             for (var i = walls.length - 1; i >= 0; i--) {
                 for (var x = walls[i].x; x < walls[i].x + walls[i].w; x += 30) {
