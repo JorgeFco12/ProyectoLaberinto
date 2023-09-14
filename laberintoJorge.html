@@ -148,7 +148,7 @@
         }
     }
 
-    const player = new Rectangulo(940, 400, 35, 30, "black");
+    const player = new Rectangulo(1200, 400, 35, 30, "black");
     const target = new Rectangulo(1200, 650, 40, 40, "black");
    
 
@@ -157,8 +157,8 @@
         new Enemy(300, 160, 35, 35, "blue", pika2),
     ];
 
-    const walls = [];
-   
+   const walls = [];
+
    walls.push(new Rectangulo(80,20,20,100,"gray")); //V  x,y,ancho.alto
    walls.push(new Rectangulo(260,320,20,340,"gray")); //V 
    walls.push(new Rectangulo(230,540,20,20,"gray")); //V 
@@ -307,6 +307,12 @@
     function update() {
         
     if (!pause) {
+
+        if(player.seTocan(target)){
+                gameOver=true;
+                //playerCanMove = false;
+                        
+            };
         
         let playerCanMove = true;
         dibujarTemporizador();
@@ -419,9 +425,7 @@ function dibujarTemporizador() {
 
     function repaint() {
         if (!pause) {
-            if (gameOver) {
-            mostrarMensajeFinJuego();
-            }
+            
             ctx.fillStyle = "green";
             ctx.fillRect(0, 0, 1580, 720);
 
@@ -453,6 +457,17 @@ function dibujarTemporizador() {
                     }
                 }
             }
+
+            if (gameOver) {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = "white";
+                ctx.font = "40px Arial";
+                ctx.fillText("¡Juego Terminado!", canvas.width / 2 - 150, canvas.height / 2 - 20);
+                ctx.fillText(`Tiempo total: ${formatearTiempo(tiempoTotalSegundos)}`, canvas.width / 2 - 170, canvas.height / 2 + 40);
+            }
+
             dibujarTemporizador();
 
         } else {
@@ -487,18 +502,8 @@ function dibujarTemporizador() {
 
 
     window.onload = function () {
-        setInterval(actualizarTemporizador, 1000); // Actualizar cada segundo (1000 ms)
+        setInterval(actualizarTemporizador, 1000); 
     }
-
-    function mostrarMensajeFinJuego() {
-            ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = "white";
-            ctx.font = "40px Arial";
-            ctx.fillText("¡Juego Terminado!", canvas.width / 2 - 150, canvas.height / 2 - 20);
-            ctx.fillText(`Tiempo total: ${formatearTiempo(tiempoTotalSegundos)}`, canvas.width / 2 - 170, canvas.height / 2 + 40);
-        }
 
 
     window.requestAnimationFrame = (function () {
