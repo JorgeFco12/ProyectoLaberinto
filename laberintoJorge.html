@@ -48,6 +48,18 @@
     let pichu1 = new Image();
     pichu1.src = "pichu1.png";
 
+    let Tyra = new Image();
+    Tyra.src = "Tyra.png";
+
+    let magikarp = new Image();
+    magikarp.src = "magikarp.png";
+
+    let Poli = new Image();
+    Poli.src = "Poli.png";
+
+    let mew = new Image();
+    mew.src = "mew.png";
+
     let pichu2 = new Image();
     pichu2.src = "pichu2.png";
 
@@ -154,17 +166,25 @@
         }
     }
 
-    const player = new Rectangulo(1200, 400, 35, 30, "black");
-    const target = new Rectangulo(1200, 650, 40, 40, "black");
+    const player = new Rectangulo(1180, 600, 35, 30, "black");
+    const target = new Rectangulo(1500, 650, 40, 40, "black");
+    const buffo = new Rectangulo(760, 600, 50, 50, "blue", );
    
     const enemies = [
-        new Enemy(40, 160, 35, 35, "blue", pika1),
+        new Enemy(30, 200, 50, 50, "blue", magikarp),
+        new Enemy(1440, 440, 80, 80, "blue", Tyra),
+        new Enemy(30, 650, 50, 50, "blue", Poli),
         new Enemy(300, 160, 35, 35, "blue", pika2),
+        
     ];
 
    const walls = [];
 
    walls.push(new Rectangulo(80,20,20,100,"gray")); //V  x,y,ancho.alto
+   walls.push(new Rectangulo(1100,640,20,60,"gray")); //v
+   walls.push(new Rectangulo(1220,620,20,80,"gray")); //v
+   walls.push(new Rectangulo(1160,580,20,80,"gray")); //v
+   walls.push(new Rectangulo(1240,460,20,40,"gray")); //h
    walls.push(new Rectangulo(260,320,20,340,"gray")); //V 
    walls.push(new Rectangulo(230,540,20,20,"gray")); //V 
    walls.push(new Rectangulo(200,480,20,100,"gray")); //V 
@@ -245,8 +265,38 @@
    walls.push(new Rectangulo(1500,440,60,20,"gray")); //h 
    walls.push(new Rectangulo(1040,60,200,20,"gray")); //h 
    walls.push(new Rectangulo(1280,60,20,340,"gray")); //v
+   walls.push(new Rectangulo(1180,400,20,40,"gray")); //h
    walls.push(new Rectangulo(1040,380,220,20,"gray")); //h
    walls.push(new Rectangulo(1100,320,140,20,"gray")); //h
+   walls.push(new Rectangulo(1220,120,20,200,"gray")); //v
+   walls.push(new Rectangulo(1100,120,20,200,"gray")); //v
+   walls.push(new Rectangulo(1100,120,140,20,"gray")); //h
+   walls.push(new Rectangulo(1040,320,20,60,"gray")); //v
+   walls.push(new Rectangulo(1180,440,100,20,"gray")); //h
+   walls.push(new Rectangulo(1400,220,20,60,"gray")); //v mover arriba
+   walls.push(new Rectangulo(1490,220,20,100,"gray")); //v mover arriba
+   walls.push(new Rectangulo(1340,60,20,380,"gray")); //v
+   walls.push(new Rectangulo(1410,60,20,100,"gray")); //v
+   walls.push(new Rectangulo(1480,60,20,100,"gray")); //v
+   walls.push(new Rectangulo(1400,200,100,20,"gray")); //h
+   walls.push(new Rectangulo(1360,140,40,20,"gray")); //h
+   walls.push(new Rectangulo(1500,140,40,20,"gray")); //h
+   walls.push(new Rectangulo(1400,360,140,20,"gray")); //h
+   walls.push(new Rectangulo(1400,320,20,40,"gray")); //h
+   walls.push(new Rectangulo(1430,320,20,40,"gray")); //h
+   walls.push(new Rectangulo(1370,240,20,40,"gray")); //h
+   walls.push(new Rectangulo(1420,420,20,20,"gray")); //h
+   walls.push(new Rectangulo(1120,500,140,20,"gray")); //v
+   walls.push(new Rectangulo(1120,440,20,60,"gray")); //v
+   walls.push(new Rectangulo(1000,440,100,20,"gray")); //h
+   walls.push(new Rectangulo(1240,520,20,60,"gray")); //v
+   walls.push(new Rectangulo(1060,560,200,20,"gray")); //h
+   walls.push(new Rectangulo(1060,500,20,80,"gray")); //v
+   walls.push(new Rectangulo(1040,500,20,20,"gray")); //v
+   walls.push(new Rectangulo(1260,560,100,20,"gray")); //h
+   walls.push(new Rectangulo(1280,640,20,20,"gray")); //h
+
+
 
    walls.push(new Rectangulo(1500,600,60,20,"gray")); //h meta
    walls.push(new Rectangulo(1440,600,20,20,"gray")); //h meta
@@ -461,7 +511,7 @@
             }
 
             ctx.drawImage(meta, target.x, target.y, 50, 50);
-           
+            ctx.drawImage(mew, buffo.x, buffo.y, 50, 50);
 
             for (const enemy of enemies) {
                 if (enemy.enabled) {
@@ -491,10 +541,10 @@
         
         } else {
             ctx.fillStyle = "rgba(128, 128, 128, 0.05)";
-            ctx.fillRect(0, 0, 1000, 1000);
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = "BLACK";
             ctx.font = "30px Arial"
-            ctx.fillText("P A U S E", 190, 230);
+            ctx.fillText("P A U S A", canvas.width / 2 - 100, canvas.height / 2 - 50);
         }
     }
     }
