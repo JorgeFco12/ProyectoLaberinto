@@ -17,6 +17,7 @@
         canvas {
             border: 1px solid black;
         }
+
     </style>
 
 </head>
@@ -24,7 +25,6 @@
 <body>
     <div id="canvas-container">
         <canvas id="canvas01" width="1580" height="720"></canvas>
-       
     </div>
 </body>
 
@@ -75,16 +75,22 @@
     let tiempoTotalSegundos = 0;
     let temporizadorElement;
     let gameOver = false;
+    let tiempoDetenido = false;
+    let menuInicio=true;
+
+    let mostrarInstrucciones = true; 
+    let iniciarJuego = false;
+    let juegoIniciado = false; 
+    let mostrarTemporizador = false; 
 
     function actualizarTemporizador() {
-        tiempoTotalSegundos++;
-        const tiempoFormateado = formatearTiempo(tiempoTotalSegundos);
-        temporizadorElement.textContent = `Tiempo: ${tiempoFormateado}`;
+    if (juegoIniciado && !tiempoDetenido) {
+            tiempoTotalSegundos++;
+            const tiempoFormateado = formatearTiempo(tiempoTotalSegundos);
+            temporizadorElement.textContent = `Tiempo: ${tiempoFormateado}`;
+        }
     }
-        document.addEventListener("DOMContentLoaded", function () {
-        temporizadorElement = document.getElementById("temporizador");
-        setInterval(actualizarTemporizador, 1000);
-    });
+        
 
     class Rectangulo {
         constructor(x, y, w, h, c) {
@@ -151,7 +157,6 @@
     const player = new Rectangulo(1200, 400, 35, 30, "black");
     const target = new Rectangulo(1200, 650, 40, 40, "black");
    
-
     const enemies = [
         new Enemy(40, 160, 35, 35, "blue", pika1),
         new Enemy(300, 160, 35, 35, "blue", pika2),
@@ -243,7 +248,6 @@
    walls.push(new Rectangulo(1040,380,220,20,"gray")); //h
    walls.push(new Rectangulo(1100,320,140,20,"gray")); //h
 
-
    walls.push(new Rectangulo(1500,600,60,20,"gray")); //h meta
    walls.push(new Rectangulo(1440,600,20,20,"gray")); //h meta
    walls.push(new Rectangulo(1500,500,20,100,"gray")); //v meta
@@ -256,6 +260,9 @@
    walls.push(new Rectangulo(0,0,canvas.width,20,"gray")); //Muro superior
 
     document.addEventListener("keydown", (event) => {
+        if (gameOver) {
+            return; 
+        }
         switch (event.keyCode) {
             case 87:
                 if (!pause) dir = event.keyCode;
@@ -272,12 +279,12 @@
             case 32:
                 pause = !pause;
                 break;
-                case 70:
-            if (!pause && !isFPressed) {
-                isFPressed = true;
-                for (const enemy of enemies) {
-                    if (enemy.enabled && player.seTocan(enemy)) {
-                        enemy.disable();
+            case 70:
+                if (!pause && !isFPressed) {
+                    isFPressed = true;
+                    for (const enemy of enemies) {
+                        if (enemy.enabled && player.seTocan(enemy)) {
+                            enemy.disable();
                     }
                 }
                 isPichu2 = true;
@@ -285,8 +292,14 @@
                     isPichu2 = false;
                 }, 300); 
             }
+            break;
+
             default:
                 break;
+        }
+
+        if (event.keyCode === 71) { 
+            startGame();
         }
 
         if (event.keyCode === 87 || event.keyCode === 83 || event.keyCode === 68 || event.keyCode === 65) {
@@ -310,12 +323,13 @@
 
         if(player.seTocan(target)){
                 gameOver=true;
-                //playerCanMove = false;
-                        
+                tiempoDetenido = true;
             };
         
         let playerCanMove = true;
+        if (mostrarTemporizador) { 
         dibujarTemporizador();
+    }
         
         switch (dir) {
             case 87:
@@ -414,18 +428,23 @@
         }
     }
     repaint();
-    window.requestAnimationFrame(update);
+    if (!gameOver) {
+        window.requestAnimationFrame(update);
+    }
 }
 
-function dibujarTemporizador() {
-    ctx.fillStyle = "Black";
-    ctx.font = "25px Arial";
-    ctx.fillText(`Tiempo: ${formatearTiempo(tiempoTotalSegundos)}`, canvas.width - 220, 60);
-}
+    function dibujarTemporizador() {
+        ctx.fillStyle = "Black";
+        ctx.font = "25px Arial";
+        ctx.fillText(`Tiempo: ${formatearTiempo(tiempoTotalSegundos)}`, canvas.width - 220, 60);
+    }
 
     function repaint() {
+        if (mostrarInstrucciones) {
+            mostrarInstruccionesEnCanvas();
+        }else{
         if (!pause) {
-            
+
             ctx.fillStyle = "green";
             ctx.fillRect(0, 0, 1580, 720);
 
@@ -457,7 +476,7 @@ function dibujarTemporizador() {
                     }
                 }
             }
-
+            
             if (gameOver) {
                 ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -469,7 +488,7 @@ function dibujarTemporizador() {
             }
 
             dibujarTemporizador();
-
+        
         } else {
             ctx.fillStyle = "rgba(128, 128, 128, 0.05)";
             ctx.fillRect(0, 0, 1000, 1000);
@@ -477,6 +496,7 @@ function dibujarTemporizador() {
             ctx.font = "30px Arial"
             ctx.fillText("P A U S E", 190, 230);
         }
+    }
     }
 
     function random_rgba() {
@@ -501,11 +521,6 @@ function dibujarTemporizador() {
     }
 
 
-    window.onload = function () {
-        setInterval(actualizarTemporizador, 1000); 
-    }
-
-
     window.requestAnimationFrame = (function () {
         return window.requestAnimationFrame ||
             window.webkitRequestAnimationFrame ||
@@ -514,6 +529,29 @@ function dibujarTemporizador() {
                 window.setTimeout(callback, 17);
             };
     }());
+
+    function mostrarInstruccionesEnCanvas() {
+        ctx.fillStyle = "white";
+        ctx.fillStroke = "red";
+        ctx.font = "30px Arial";
+        ctx.fillText("Instrucciones:", canvas.width / 2 - 100, canvas.height / 2 - 50);
+        ctx.font = "20px Arial";
+        ctx.fillText("-Usa las teclas W, A, S, D para moverte.", canvas.width / 2 - 250, canvas.height / 2);
+        ctx.fillText("-Pulsa la tecla F y realiza un placaje golpeando a los enemigos para eliminarlos.", canvas.width / 2 - 250, canvas.height / 2 + 30);
+        ctx.fillText("-Alcanza la meta para ganar.", canvas.width / 2 - 250, canvas.height / 2 + 60);
+        ctx.fillText("-Pulsa G para comenzar el juego.", canvas.width / 2 - 250, canvas.height / 2 + 90);
+    }
+
+    function startGame() {
+        mostrarInstrucciones = false;
+        iniciarJuego = true;
+        if (!juegoIniciado) {
+            juegoIniciado = true;
+            mostrarTemporizador = true; 
+            setInterval(actualizarTemporizador, 1000);
+            
+        }
+    }
 
 
     window.requestAnimationFrame(update);
