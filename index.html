@@ -52,8 +52,8 @@
     let pichu1 = new Image();
     pichu1.src = "pichu1.png";
 
-    let Tyra = new Image();
-    Tyra.src = "Tyra.png";
+    let tyra = new Image();
+    tyra.src = "tyra.png";
 
     let charizard = new Image();
     charizard.src = "charizard.png";
@@ -64,11 +64,11 @@
     let magikarp = new Image();
     magikarp.src = "magikarp.png";
 
-    let Vaporeon = new Image();
-    Vaporeon.src = "Vaporeon.png";
+    let vaporeon = new Image();
+    vaporeon.src = "vaporeon.png";
 
-    let Poli = new Image();
-    Poli.src = "Poli.png";
+    let poli = new Image();
+    poli.src = "poli.png";
 
     let bagon = new Image();
     bagon.src = "bagon.png";
@@ -196,12 +196,12 @@
    
     const enemies = [
         new Enemy(30, 200, 50, 50, "blue", magikarp),
-        new Enemy(1440, 440, 80, 80, "blue", Tyra),
-        new Enemy(1427, 220, 67, 67, "blue", charizard),
+        new Enemy(1440, 440, 80, 80, "blue", tyra),
+        new Enemy(1427, 218, 67, 62, "blue", charizard),
         new Enemy(605, 265, 67, 67, "blue", snorlax),
         new Enemy(410, 23, 50, 50, "blue", bagon),
-        new Enemy(30, 650, 50, 50, "blue", Poli),
-        new Enemy(890, 210, 65, 50, "blue", Vaporeon),
+        new Enemy(30, 650, 50, 50, "blue", poli),
+        new Enemy(890, 210, 65, 50, "blue", vaporeon),
         new Enemy(1170, 215, 50, 50, "blue", pika1),
         new Enemy(1160, 175, 50, 50, "blue", pika1),
         new Enemy(1140, 260, 50, 50, "blue", pika1),
@@ -361,6 +361,7 @@
                 break;
             case 32:
                 pause = !pause;
+                tiempoDetenido = !tiempoDetenido;
                 break;
             case 70:
                 if (!pause && !isFPressed) {
@@ -399,11 +400,9 @@
 
         if (event.keyCode === 71) { 
             startGame();
-        }
-
-        if (event.keyCode === 87 || event.keyCode === 83 || event.keyCode === 68 || event.keyCode === 65) {
             audio.play();
         }
+
     });
 
     document.addEventListener("keyup", (event) => {
@@ -417,7 +416,7 @@
     });
 
     function update() {
-        //audio.play();
+       // audio.play();
     if (!pause) {
         
         if(player.seTocan(target) && enemigosRestantes == 0){
@@ -461,7 +460,7 @@
             if (enemy.enabled) {
                 if (player.seTocan(enemy)) {
                     if (isFPressed) {
-                        if(player.seTocan(enemy).Tyra && enemigosAsesinados==1){
+                        if(player.seTocan(enemy).tyra && enemigosAsesinados==1){
 
                             console.log("tiranitarrr");
                             enemy.disable();
