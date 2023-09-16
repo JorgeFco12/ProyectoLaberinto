@@ -35,7 +35,7 @@
     ctx.fillStyle = "red";
 
     var dir = 0;
-    var speed = 2;
+    var speed = 5;
     let pause = false;
     let score = 0;
     let isPichu2 = false;
@@ -51,11 +51,23 @@
     let Tyra = new Image();
     Tyra.src = "Tyra.png";
 
+    let charizard = new Image();
+    charizard.src = "charizard.png";
+
+    let snorlax = new Image();
+    snorlax.src = "snorlax.png";
+
     let magikarp = new Image();
     magikarp.src = "magikarp.png";
 
+    let Vaporeon = new Image();
+    Vaporeon.src = "Vaporeon.png";
+
     let Poli = new Image();
     Poli.src = "Poli.png";
+
+    let bagon = new Image();
+    bagon.src = "bagon.png";
 
     let mew = new Image();
     mew.src = "mew.png";
@@ -89,17 +101,25 @@
     let gameOver = false;
     let tiempoDetenido = false;
     let menuInicio=true;
+    let mensaje = false;
 
     let mostrarInstrucciones = true; 
     let iniciarJuego = false;
     let juegoIniciado = false; 
     let mostrarTemporizador = false; 
 
+    let enemigosAsesinados = 0;
+    let enemigosRestantes = 7;
+    let playerImage = pichu1;
+    let startTime = 0;
+    let evolucion=1;
+    let misa;
+
     function actualizarTemporizador() {
     if (juegoIniciado && !tiempoDetenido) {
             tiempoTotalSegundos++;
             const tiempoFormateado = formatearTiempo(tiempoTotalSegundos);
-            temporizadorElement.textContent = `Tiempo: ${tiempoFormateado}`;
+        
         }
     }
         
@@ -166,15 +186,24 @@
         }
     }
 
-    const player = new Rectangulo(1180, 600, 35, 30, "black");
+    const player = new Rectangulo(30, 30, 35, 30, "black");
     const target = new Rectangulo(1500, 650, 40, 40, "black");
     const buffo = new Rectangulo(760, 600, 50, 50, "blue", );
    
     const enemies = [
         new Enemy(30, 200, 50, 50, "blue", magikarp),
         new Enemy(1440, 440, 80, 80, "blue", Tyra),
+        new Enemy(1427, 220, 67, 67, "blue", charizard),
+        new Enemy(605, 265, 67, 67, "blue", snorlax),
+        new Enemy(410, 23, 50, 50, "blue", bagon),
         new Enemy(30, 650, 50, 50, "blue", Poli),
-        new Enemy(300, 160, 35, 35, "blue", pika2),
+        new Enemy(890, 210, 65, 50, "blue", Vaporeon),
+        new Enemy(1170, 215, 50, 50, "blue", pika1),
+        new Enemy(1160, 175, 50, 50, "blue", pika1),
+        new Enemy(1140, 260, 50, 50, "blue", pika1),
+        new Enemy(1180, 270, 45, 45, "blue", pichu1),
+        new Enemy(1140, 210, 45, 45, "blue", pichu1),
+        new Enemy(1130, 150, 45, 45, "blue", pichu1),
         
     ];
 
@@ -335,14 +364,30 @@
                     for (const enemy of enemies) {
                         if (enemy.enabled && player.seTocan(enemy)) {
                             enemy.disable();
+                        }
+                    }
+                 
+                    if (playerImage === pichu1) {
+                        playerImage = pichu2;
+                        misa = setTimeout(() => {
+                            playerImage = pichu1;
+                        }, 300); 
+
+                    } else if (playerImage === pika1) {
+                        playerImage = pika2;
+                         setTimeout(() => {
+                            playerImage = pika1;
+                        }, 300); 
+                    }
+
+                    if (playerImage === pika1) {
+                        playerImage = pika2;
+                        setTimeout(() => {
+                            playerImage = pika1;
+                        }, 300); 
                     }
                 }
-                isPichu2 = true;
-                setTimeout(() => {
-                    isPichu2 = false;
-                }, 300); 
-            }
-            break;
+                break;
 
             default:
                 break;
@@ -371,10 +416,18 @@
         
     if (!pause) {
 
-        if(player.seTocan(target)){
+        if(player.seTocan(target) && enemigosRestantes == 0){
                 gameOver=true;
                 tiempoDetenido = true;
             };
+
+        if (player.seTocan(buffo)) {
+           
+            speed++; 
+            buffo.x=-1000;
+            buffo.y=-1000;
+            mensaje=true;
+        }
         
         let playerCanMove = true;
         if (mostrarTemporizador) { 
@@ -402,7 +455,18 @@
             if (enemy.enabled) {
                 if (player.seTocan(enemy)) {
                     if (isFPressed) {
+                        if(player.seTocan(enemy).Tyra && enemigosAsesinados==1){
+
+                            console.log("tiranitarrr");
+                            enemy.disable();
+                            enemigosRestantes--;
+                            enemigosAsesinados++;
+
+                        }else{
                         enemy.disable();
+                        enemigosRestantes--;
+                        enemigosAsesinados++;
+                        }
                     } else {
                         playerCanMove = false;
                         switch (dir) {
@@ -424,6 +488,13 @@
                         dir = 0;
                         break; 
                     }
+                    
+                }
+                if (enemigosAsesinados === 3) {
+                    clearTimeout(misa);
+                    evolucion=2;
+                    playerImage = pika1;
+                    enemigosAsesinados++;
                 }
             }
         }
@@ -483,16 +554,25 @@
     }
 }
 
+    function dibujarAumento() {
+        ctx.fillStyle = "Black";
+        ctx.font = "22px Arial";
+        ctx.fillText("Velocidad +1" , canvas.width - 220, 110);
+    }
+
     function dibujarTemporizador() {
         ctx.fillStyle = "Black";
         ctx.font = "25px Arial";
         ctx.fillText(`Tiempo: ${formatearTiempo(tiempoTotalSegundos)}`, canvas.width - 220, 60);
     }
 
+
+
     function repaint() {
         if (mostrarInstrucciones) {
             mostrarInstruccionesEnCanvas();
         }else{
+
         if (!pause) {
 
             ctx.fillStyle = "green";
@@ -503,15 +583,12 @@
                     ctx.drawImage(hierba, x, y, 30, 20);
                 }
             }
-
-            if (isPichu2) {
-                ctx.drawImage(pichu2, player.x, player.y, 50, 50);
-            } else {
-                ctx.drawImage(pichu1, player.x, player.y, 50, 50);
-            }
+                ctx.drawImage(playerImage, player.x, player.y, 50, 50);
+         
 
             ctx.drawImage(meta, target.x, target.y, 50, 50);
             ctx.drawImage(mew, buffo.x, buffo.y, 50, 50);
+
 
             for (const enemy of enemies) {
                 if (enemy.enabled) {
@@ -536,8 +613,12 @@
                 ctx.fillText("¡Juego Terminado!", canvas.width / 2 - 150, canvas.height / 2 - 20);
                 ctx.fillText(`Tiempo total: ${formatearTiempo(tiempoTotalSegundos)}`, canvas.width / 2 - 170, canvas.height / 2 + 40);
             }
-
+            if(mensaje){
+                dibujarAumento();
+            }
+            
             dibujarTemporizador();
+            restantes();
         
         } else {
             ctx.fillStyle = "rgba(128, 128, 128, 0.05)";
@@ -557,11 +638,7 @@
     function getRandomInt(max) {
         return Math.floor(Math.random() * max);
     }
-    function actualizarTemporizador() {
-        tiempoTotalSegundos++;
-        temporizadorElement.textContent = `Tiempo: ${formatearTiempo(tiempoTotalSegundos)}`;
-    }
-
+    
     function formatearTiempo(tiempo) {
         const minutos = Math.floor(tiempo / 60);
         const segundos = tiempo % 60;
@@ -601,6 +678,12 @@
             setInterval(actualizarTemporizador, 1000);
             
         }
+    }
+
+    function restantes(){
+        ctx.fillStyle = "Black";
+        ctx.font = "22px Arial";
+        ctx.fillText("Enemigos restantes: "+enemigosRestantes , canvas.width - 220, 90);
     }
 
 
